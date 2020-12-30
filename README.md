@@ -8,4 +8,4 @@
 2. User function
 * Add,update,delete favorite movies
 * Update display order of favorite movies
-* Rate and comments movies
+* Rate and comment movies
