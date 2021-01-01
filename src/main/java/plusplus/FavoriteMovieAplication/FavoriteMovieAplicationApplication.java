@@ -9,5 +9,4 @@ public class FavoriteMovieAplicationApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(FavoriteMovieAplicationApplication.class, args);
 	}
-
 }
