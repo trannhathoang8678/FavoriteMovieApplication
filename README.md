@@ -7,8 +7,7 @@
 * Display movie in detail
 * Display famous people in detail
 2. User function
-* Add,update,delete favorite movies
-* Update display order of favorite movies
+* Add,update,delete favorite movies in display order
 * Rate and comment movies
 3. Admin function
 * Add,update,delete movies
