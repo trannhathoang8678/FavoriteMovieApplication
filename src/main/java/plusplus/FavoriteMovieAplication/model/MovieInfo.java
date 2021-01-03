@@ -4,15 +4,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import plusplus.FavoriteMovieAplication.JpaConfig;
+import plusplus.FavoriteMovieAplication.entity.Movie;
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
+import java.util.List;
 
 @Configuration
 public class MovieInfo {
     @Autowired
     JpaConfig jpaConfig;
+
     public void addMovieType(String name) {
         if (!verifyMovieType(name)) return;
         String sql = "INSERT INTO TYPE (name) VALUE ('" + name + "');";
@@ -97,6 +102,24 @@ public class MovieInfo {
         }
     }
 
+    public Movie findMovie(int id) {
+        String sql = "SELECT * FROM MOVIE WHERE id =" + id + ";";
+        Movie movie = null;
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+
+            ResultSet getMovie = statement.executeQuery(sql);
+            if (getMovie.next()) {
+                movie = new Movie(getMovie.getInt(1),getMovie.getString(2),getMovie.getInt(3),
+                        getMovie.getString(4),getMovie.getString(5),getMovie.getInt(6),getMovie.getString(7));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return movie;
+        }
+    }
+
     public void addMovie(String name, int createdYear, String urlPoster, String overview, int score, String length) {
         if (!verifyMovie(name)) return;
         String sql = "INSERT INTO MOVIE (name,year_created,url_poster,overview,score,length) VALUE ('" + name + "','" + createdYear
@@ -133,7 +156,7 @@ public class MovieInfo {
 
     public void updateMovie(int id, String name, int createdYear, String urlPoster, String overview, int score, String length) {
         // if don't want update write null for string and -1 for int
-        if (!isTypeIDexist(id)) {
+        if (!isMovieIDexist(id)) {
             return;
         }
         String sql = "UPDATE MOVIE SET id = " + id;
@@ -195,8 +218,23 @@ public class MovieInfo {
             return false;
         }
     }
-    public void addTypeOfMovie(int typeID,int movieID) {
-        if (!verifyTypeOfMovie(typeID,movieID)) return;
+    public List<String> findTypesOfMovie(int movieID)
+    {
+        List<String> types = new LinkedList<>();
+        String sql = "SELECT TYPE.name FROM TYPE JOIN MOVIE_TYPE mt ON TYPE.id= mt.TYPE_id WHERE mt.MOVIE_id =" + movieID + ";";
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getTypes = statement.executeQuery(sql);
+            while(getTypes.next())
+                types.add(getTypes.getString(1));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return types;
+        }
+    }
+    public void addTypeOfMovie(int typeID, int movieID) {
+        if (!verifyTypeOfMovie(typeID, movieID)) return;
         String sql = "INSERT INTO MOVIE_TYPE  VALUE (" + typeID + "," + movieID + ");";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
@@ -210,25 +248,24 @@ public class MovieInfo {
     }
 
 
-
-    public void deleteMovieType(int id) {
-        if (verifyMovieType(id)) {
+    public void deleteTypeOfMovie(int typeID, int movieID) {
+        if (verifyTypeOfMovie(typeID,movieID)) {
             return;
         }
-        String sql = "DELETE FROM MOVIE_TYPE WHERE id = " + id + " ;";
+        String sql = "DELETE FROM MOVIE_TYPE WHERE TYPE_id =" + typeID + " AND MOVIE_id =" + movieID + " ;";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
-            System.out.println("Delete type succefully");
+            System.out.println("Delete type of movie succefully");
             statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Delete type failed");
+            System.out.println("Delete type of movie failed");
         }
     }
 
-    public boolean verifyTypeOfMovie(int typeID,int movieID) {
-        String sql = "SELECT 'id' FROM MOVIE_TYPE WHERE TYPE_id =" + typeID + " AND MOVIE_id =" + movieID " ;";
+    public boolean verifyTypeOfMovie(int typeID, int movieID) {
+        String sql = "SELECT 'id' FROM MOVIE_TYPE WHERE TYPE_id =" + typeID + " AND MOVIE_id =" + movieID + " ;";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getSameTypeOfMovie = statement.executeQuery(sql);
             if (getSameTypeOfMovie.next()) {
