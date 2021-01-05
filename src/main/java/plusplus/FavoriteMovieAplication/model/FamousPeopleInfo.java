@@ -6,10 +6,10 @@ import plusplus.FavoriteMovieAplication.JpaConfig;
 import plusplus.FavoriteMovieAplication.entity.FamousPeople;
 import plusplus.FavoriteMovieAplication.entity.Movie;
 
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
+
 @Configuration
 public class FamousPeopleInfo {
     @Autowired
@@ -123,6 +123,115 @@ public class FamousPeopleInfo {
             e.printStackTrace();
             System.out.println("check is famousPeopleID exist failed");
             return false;
+        }
+    }
+    public void addPeoleMovieRelationship(int movieID, int peopleID, String role, int time) {
+        // time by year
+        if (!verifyPeopleMovieRelationship(movieID,peopleID,role)) return;
+        String sql = "INSERT INTO PEOPLE_MOVIE VALUE (" + movieID + "," +peopleID+",'" + role + "'," + time + ");" ;
+        try {
+            Statement statement = jpaConfig.getConnection().createStatement();
+            statement.executeUpdate(sql);
+            System.out.println("Add relationship succefully");
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Add relationship failed");
+        }
+    }
+
+    public boolean verifyPeopleMovieRelationship(int movieID,int peopleID,String role) {
+        String sql = "SELECT 'id' FROM PEO_MOVIE WHERE MOVIE_id =" + movieID + " AND PEOPLE_id=" + peopleID + " AND role='"
+                + role + "';" ;
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getSameRelationship = statement.executeQuery(sql);
+            if (getSameRelationship.next()) {
+                System.out.println("This relationship has already existed");
+                return false;
+            } else {
+                System.out.println("Verify relationship successfully");
+                return true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Verify relationship failed");
+            return false;
+        }
+    }
+
+    public void updatePeopleMovieRelationship(int movieID,int peopleID, String role, int time) {
+        //time by year
+        if (!isPeopleMovieRelationshipExist(movieID,peopleID)) {
+            return;
+        }
+        String sql = "UPDATE PEOPLE_MOVIE SET MOVIE_id = " + movieID;
+        if (role != null)
+            sql += " ,role='" + role + "'";
+        if (time != -1)
+            sql += " ,time='" + time + "'";
+        sql += " WHERE MOVIE_id =" + movieID + ";";
+        try {
+            Statement statement = jpaConfig.getConnection().createStatement();
+            statement.executeUpdate(sql);
+            System.out.println("Update relationship succefully");
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Update relationship failed");
+        }
+    }
+
+    public void deletePeopleMovieRelationship(int movieID,int peopleID) {
+        if (!isPeopleMovieRelationshipExist(movieID,peopleID)) {
+            return;
+        }
+        String sql = "DELETE FROM PEOPLE_MOVIE WHERE MOVIE_id =" + movieID + " AND PEOPLE_id =" + peopleID + ";";
+        try {
+            Statement statement = jpaConfig.getConnection().createStatement();
+            statement.executeUpdate(sql);
+            System.out.println("Delete relationship succefully");
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Delete relationship failed");
+        }
+    }
+
+    public boolean isPeopleMovieRelationshipExist(int movieID,int peopleID) {
+        String sql = "SELECT 'id' FROM PEOPLE_MOVIE WHERE MOVIE_id =" + movieID + " AND PEOPLE_id =" + peopleID + ";";
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet checkID = statement.executeQuery(sql);
+            if (checkID.next()) {
+                System.out.println("This relationship ID exist");
+                return true;
+            } else {
+                System.out.println("This relationship ID is not existed");
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("check is relationship ID exist failed");
+            return false;
+        }
+    }
+    public List<Integer> findMoviePeopleJoin(int peopleID)
+    {
+        List<Integer> movieIDs = new LinkedList<>();
+        String sql = "SELECT MOVIE_id FROM PEOPLE_MOVIE WHERE peopleID =" + peopleID + ";";
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getMovieID = statement.executeQuery(sql);
+          while(getMovieID.next())
+          {
+              movieIDs.add(getMovieID.getInt(1));
+          }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return movieIDs;
         }
     }
 }
