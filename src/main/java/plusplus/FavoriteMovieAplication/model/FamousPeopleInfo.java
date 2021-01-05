@@ -141,7 +141,7 @@ public class FamousPeopleInfo {
     }
 
     public boolean verifyPeopleMovieRelationship(int movieID,int peopleID,String role) {
-        String sql = "SELECT 'id' FROM PEO_MOVIE WHERE MOVIE_id =" + movieID + " AND PEOPLE_id=" + peopleID + " AND role='"
+        String sql = "SELECT 'id' FROM PEOPLE_MOVIE WHERE MOVIE_id =" + movieID + " AND PEOPLE_id=" + peopleID + " AND role='"
                 + role + "';" ;
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getSameRelationship = statement.executeQuery(sql);
@@ -170,7 +170,7 @@ public class FamousPeopleInfo {
             sql += " ,role='" + role + "'";
         if (time != -1)
             sql += " ,time='" + time + "'";
-        sql += " WHERE MOVIE_id =" + movieID + ";";
+        sql += " WHERE MOVIE_id =" + movieID + " AND PEOPLE_id = " + peopleID +" ;";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -216,7 +216,7 @@ public class FamousPeopleInfo {
             return false;
         }
     }
-    public List<Integer> findMoviePeopleJoin(int peopleID)
+    public List<Integer> findMoviesPeopleJoin(int peopleID)
     {
         List<Integer> movieIDs = new LinkedList<>();
         String sql = "SELECT MOVIE_id FROM PEOPLE_MOVIE WHERE peopleID =" + peopleID + ";";
