@@ -3,12 +3,16 @@ package plusplus.FavoriteMovieAplication.model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import plusplus.FavoriteMovieAplication.JpaConfig;
+import plusplus.FavoriteMovieAplication.entity.MovieDemo;
+import plusplus.FavoriteMovieAplication.entity.MovieDisplay;
 import plusplus.FavoriteMovieAplication.entity.Viewer;
 
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
+import java.util.List;
 
 @Configuration
 public class ViewerInfo {
@@ -34,6 +38,9 @@ public class ViewerInfo {
     public void addViewer(String username, String password, String email) {
         String sql = "INSERT INTO VIEWER (username,password,email) VALUE ('" + username + "','" + password
                 + "','" + email + "');";
+        if (!verifyViewer(username)) {
+            return;
+        }
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -61,6 +68,23 @@ public class ViewerInfo {
             e.printStackTrace();
             System.out.println("Verify viewer failed");
             return false;
+        }
+    }
+
+    public String login(String username, String password) {
+        String sql = "SELECT 'id' FROM VIEWER WHERE username ='" + username + "' AND password='" + password + "' ;";
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getIDHaveSameUsername = statement.executeQuery(sql);
+            if (getIDHaveSameUsername.next()) {
+                return "Log in success";
+
+            } else {
+                return "Wrong password or username";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Login failed";
         }
     }
 
@@ -121,10 +145,11 @@ public class ViewerInfo {
             return false;
         }
     }
-    public void addMovieDisplay(int viewerID,int movieID, int rank) {
+
+    public void addMovieDisplay(int viewerID, int movieID, int rank) {
         // time by year
-        if (!verifyMovieDisplay(viewerID,movieID)) return;
-        String sql = "INSERT INTO MOVIE_DISPLAY VALUE (" + viewerID + "," + movieID +"," + rank +  ");" ;
+        if (!verifyMovieDisplay(viewerID, movieID)) return;
+        String sql = "INSERT INTO MOVIE_DISPLAY VALUE (" + viewerID + "," + movieID + "," + rank + ");";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -136,8 +161,8 @@ public class ViewerInfo {
         }
     }
 
-    public boolean verifyMovieDisplay(int viewerID,int movieID) {
-        String sql = "SELECT 'id' FROM MOVIE_DISPLAY WHERE VIEWER_id =" + viewerID + " AND MOVIE_id=" + movieID + "';" ;
+    public boolean verifyMovieDisplay(int viewerID, int movieID) {
+        String sql = "SELECT VIEWER_id FROM MOVIE_DISPLAY WHERE VIEWER_id =" + viewerID + " AND MOVIE_id=" + movieID + ";";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getSameMovieDisplay = statement.executeQuery(sql);
             if (getSameMovieDisplay.next()) {
@@ -155,16 +180,16 @@ public class ViewerInfo {
         }
     }
 
-    public void updateMovieDisplay(int viewerID,int movieID, int rank) {
+    public void updateMovieDisplay(int viewerID, int movieID, int rank) {
         //time by year
-        if (!isMovieDisplayExist(viewerID,movieID)) {
+        if (!isMovieDisplayExist(viewerID, movieID)) {
             return;
         }
         String sql = "UPDATE MOVIE_DISPLAY SET MOVIE_id = " + movieID;
 
         if (rank != -1)
             sql += " ,rank='" + rank + "'";
-        sql += " WHERE VIEWER_id =" + viewerID + " AND MOVIE_id =" + movieID +" ;";
+        sql += " WHERE VIEWER_id =" + viewerID + " AND MOVIE_id =" + movieID + " ;";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -176,8 +201,8 @@ public class ViewerInfo {
         }
     }
 
-    public void deleteMovieDisplay(int peopleID,int viewerID) {
-        if (!isMovieDisplayExist(peopleID,viewerID)) {
+    public void deleteMovieDisplay(int peopleID, int viewerID) {
+        if (!isMovieDisplayExist(peopleID, viewerID)) {
             return;
         }
         String sql = "DELETE FROM MOVIE_DISPLAY WHERE MOVIE_id =" + peopleID + " AND PEOPLE_id =" + viewerID + ";";
@@ -192,7 +217,7 @@ public class ViewerInfo {
         }
     }
 
-    public boolean isMovieDisplayExist(int viewerID,int movieID) {
+    public boolean isMovieDisplayExist(int viewerID, int movieID) {
         String sql = "SELECT 'id' FROM MOVIE_DISPLAY WHERE VIEWER_id =" + viewerID + " AND MOVIE_id =" + movieID + ";";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet checkID = statement.executeQuery(sql);
@@ -208,6 +233,44 @@ public class ViewerInfo {
             e.printStackTrace();
             System.out.println("check is movie display ID exist failed");
             return false;
+        }
+    }
+
+    public List<MovieDemo> showMoviesOfViewer(int viewerID) {
+        List<MovieDemo> movieDemos = new LinkedList<>();
+        MovieDemo movieDemo;
+        String sql = "SELECT m.id,m.name,m.year_created,m.url_poster,m.score FROM MOVIE m JOIN MOVIE_DISPLAY WHERE MOVIE_id = m.id AND " +
+                "VIEWER_id =" + viewerID + " ORDER BY rank ASC;";
+        //System.out.println(sql);
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getMovie = statement.executeQuery(sql);
+            while (getMovie.next()) {
+                movieDemo = new MovieDemo(getMovie.getInt(1), getMovie.getString(2), getMovie.getInt(3)
+                        , getMovie.getString(4), getMovie.getInt(5));
+                movieDemos.add(movieDemo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } finally {
+            return movieDemos;
+        }
+    }
+    public List<MovieDisplay> getMoviesDisplayOfViewer(int viewerID) {
+        List<MovieDisplay> movieDisplays = new LinkedList<>();
+        MovieDisplay movieDisplay;
+        String sql = "SELECT * FROM MOVIE_DISPLAY WHERE VIEWER_id =" + viewerID + ";";
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getMovie = statement.executeQuery(sql);
+            while (getMovie.next()) {
+                movieDisplay = new MovieDisplay(getMovie.getInt(1),getMovie.getInt(2),getMovie.getInt(3));
+                movieDisplays.add(movieDisplay);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } finally {
+            return movieDisplays;
         }
     }
 }

@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import plusplus.FavoriteMovieAplication.JpaConfig;
+import plusplus.FavoriteMovieAplication.entity.FullMovie;
 import plusplus.FavoriteMovieAplication.entity.Movie;
+import plusplus.FavoriteMovieAplication.entity.MovieDemo;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -102,24 +104,63 @@ public class MovieInfo {
         }
     }
 
-    public Movie findMovie(int id) {
+    public FullMovie findMovieByID(int id) {
         String sql = "SELECT * FROM MOVIE WHERE id =" + id + ";";
-        Movie movie = null;
+        FullMovie fullMovie = null;
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
 
             ResultSet getMovie = statement.executeQuery(sql);
             if (getMovie.next()) {
-                movie = new Movie(getMovie.getInt(1),getMovie.getString(2),getMovie.getInt(3),
+                fullMovie = new FullMovie(getMovie.getInt(1),getMovie.getString(2),getMovie.getInt(3),
                         getMovie.getString(4),getMovie.getString(5),getMovie.getInt(6),getMovie.getString(7));
             }
+            fullMovie.setTypes(findTypesOfMovie(id));
         } catch (SQLException e) {
             e.printStackTrace();
         }
         finally {
-            return movie;
+            return fullMovie;
+        }
+    }
+    public FullMovie findMovieByName(String name) {
+        String sql = "SELECT * FROM MOVIE WHERE name ='" + name + "';";
+        FullMovie fullMovie = null;
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+
+            ResultSet getMovie = statement.executeQuery(sql);
+            if (getMovie.next()) {
+                fullMovie = new FullMovie(getMovie.getInt(1),getMovie.getString(2),getMovie.getInt(3),
+                        getMovie.getString(4),getMovie.getString(5),getMovie.getInt(6),getMovie.getString(7));
+            }
+            fullMovie.setTypes(findTypesOfMovie(fullMovie.getId()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return fullMovie;
         }
     }
 
+    public List<MovieDemo> findAllMovies() {
+        String sql = "SELECT id,name,year_created,url_poster,score FROM MOVIE;";
+        List<MovieDemo> movieDemos = new LinkedList<>();
+        MovieDemo movieDemo = null;
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+
+            ResultSet getMovie = statement.executeQuery(sql);
+            while (getMovie.next()) {
+                movieDemo = new MovieDemo(getMovie.getInt(1),getMovie.getString(2),getMovie.getInt(3)
+                ,getMovie.getString(4),getMovie.getInt(5));
+                movieDemos.add(movieDemo);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return movieDemos;
+        }
+    }
     public void addMovie(String name, int createdYear, String urlPoster, String overview, int score, String length) {
         if (!verifyMovie(name)) return;
         String sql = "INSERT INTO MOVIE (name,year_created,url_poster,overview,score,length) VALUE ('" + name + "','" + createdYear

@@ -12,9 +12,9 @@ import java.sql.Date;
 @NoArgsConstructor
 public class FamousPeople {
     private int id;
-    private String name,url_avatar,biography,gender;
+    private String name,urlAvatar,biography,gender;
     private Date birthday;
     private String birthplace,popular_reason;
     private int numberCredits;
-    private String nickname,url_social_media;
+    private String nickname,urlSocialMedia;
 }

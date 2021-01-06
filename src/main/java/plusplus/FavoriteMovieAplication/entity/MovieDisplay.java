@@ -5,15 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Movie {
-    private int id;
-    private String name;
-    private int createdYear;
-    private String urlPoster,overview;
-    private int score;
-    private String length;
+public class MovieDisplay {
+    private int viewerID,movieID,rank;
 }
