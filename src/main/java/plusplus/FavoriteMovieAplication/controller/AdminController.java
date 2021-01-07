@@ -3,9 +3,9 @@ package plusplus.FavoriteMovieAplication.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import plusplus.FavoriteMovieAplication.entity.*;
-import plusplus.FavoriteMovieAplication.model.FamousPeopleInfo;
-import plusplus.FavoriteMovieAplication.model.MovieInfo;
-import plusplus.FavoriteMovieAplication.model.ViewerInfo;
+import plusplus.FavoriteMovieAplication.service.FamousPeopleInfo;
+import plusplus.FavoriteMovieAplication.service.MovieInfo;
+import plusplus.FavoriteMovieAplication.service.ViewerInfo;
 
 @RestController
 @RequestMapping(value = "/admin")

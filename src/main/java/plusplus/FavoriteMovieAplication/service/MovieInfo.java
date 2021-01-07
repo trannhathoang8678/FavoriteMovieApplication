@@ -1,21 +1,19 @@
-package plusplus.FavoriteMovieAplication.model;
+package plusplus.FavoriteMovieAplication.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import plusplus.FavoriteMovieAplication.JpaConfig;
+import org.springframework.stereotype.Service;
+import plusplus.FavoriteMovieAplication.config.JpaConfig;
 import plusplus.FavoriteMovieAplication.entity.FullMovie;
-import plusplus.FavoriteMovieAplication.entity.Movie;
 import plusplus.FavoriteMovieAplication.entity.MovieDemo;
 
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
-@Configuration
+@Service
 public class MovieInfo {
     @Autowired
     JpaConfig jpaConfig;

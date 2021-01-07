@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import plusplus.FavoriteMovieAplication.entity.FamousPeople;
 import plusplus.FavoriteMovieAplication.entity.FullMovie;
 import plusplus.FavoriteMovieAplication.entity.MovieDemo;
-import plusplus.FavoriteMovieAplication.model.FamousPeopleInfo;
-import plusplus.FavoriteMovieAplication.model.MovieInfo;
+import plusplus.FavoriteMovieAplication.service.FamousPeopleInfo;
+import plusplus.FavoriteMovieAplication.service.MovieInfo;
 
 import java.util.List;
 

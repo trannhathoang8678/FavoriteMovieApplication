@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import plusplus.FavoriteMovieAplication.entity.MovieDemo;
 import plusplus.FavoriteMovieAplication.entity.MovieDisplay;
 import plusplus.FavoriteMovieAplication.entity.Viewer;
-import plusplus.FavoriteMovieAplication.model.ViewerInfo;
+import plusplus.FavoriteMovieAplication.service.ViewerInfo;
 
 import java.util.List;
 
